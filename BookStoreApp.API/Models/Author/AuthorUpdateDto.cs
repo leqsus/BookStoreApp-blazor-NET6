@@ -4,6 +4,7 @@ namespace BookStoreApp.API.Models.Author
 {
     public class AuthorUpdateDto : BaseDto
     {
+        
         [Required]
         [StringLength(50)]
         public string FirstName { get; set; }
