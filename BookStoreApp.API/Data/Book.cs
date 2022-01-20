@@ -7,7 +7,7 @@ namespace BookStoreApp.API.Data
     public partial class Book
     {
         public int Id { get; set; }
-        public decimal? Title { get; set; }
+        public string? Title { get; set; }
 
         public int? Year { get; set; }
    

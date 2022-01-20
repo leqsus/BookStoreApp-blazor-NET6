@@ -1,11 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata;
 
 namespace BookStoreApp.API.Data
 {
-    public partial class BookStoreDbContext : DbContext
+    public partial class BookStoreDbContext : IdentityDbContext<ApiUser>
     {
         public BookStoreDbContext()
         {
@@ -18,42 +20,66 @@ namespace BookStoreApp.API.Data
 
         public virtual DbSet<Author> Authors { get; set; } = null!;
         public virtual DbSet<Book> Books { get; set; } = null!;
-      
 
-
-
-        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        protected override void OnModelCreating(ModelBuilder builder)
         {
-            modelBuilder.Entity<Author>(entity =>
-            {
-                entity.Property(e => e.Bio).HasMaxLength(250);
+           base.OnModelCreating(builder);
 
-                entity.Property(e => e.FirstName).HasMaxLength(50);
+           builder.Entity<IdentityRole>().HasData(
+               new IdentityRole
+               {
+                   Name = "user",
+                   NormalizedName = "USER",
+                   Id = "2a03e792-b707-4689-aea5-f83fde6dd875"
+               },
+               new IdentityRole
+               {
+                   Name = "Administrator",
+                   NormalizedName = "ADMINISTRATOR",
+                   Id = "e301b28a-320e-4c7b-9e4e-20689a685afd"
+               }
+               );
 
-                entity.Property(e => e.LastName).HasMaxLength(50);
-            });
+            var hasher = new PasswordHasher<ApiUser>();
 
-            modelBuilder.Entity<Book>(entity =>
-            {
-                entity.Property(e => e.Image).HasMaxLength(50);
+            builder.Entity<ApiUser>().HasData(
+                new ApiUser
+                {
+                    Id = "9accb19b-c635-4c63-86ee-3a3ac9de7343",
+                    Email = "nadirashvili8@gmail.com",
+                    NormalizedEmail =  "NADIRASHVILI8@GMAIL.COM",
+                    UserName = "nadirashvili8@gmail.com",
+                    NormalizedUserName = "NADIRASHVILI8@GMAIL.COM",
+                    FirstName = "admin",
+                    LastName = "admin",
+                    PasswordHash =hasher.HashPassword(null,"P@ssoword1")
+                },
+                new ApiUser
+                {
+                Id = "df2fe041-5f27-4a6c-869b-75092cc0d08d",
+                    Email = "user@gmail.com",
+                    NormalizedEmail = "USER@GMAIL.COM",
+                    UserName = "user@gmail.com",
+                    NormalizedUserName = "USER@GMAIL.COM",
+                    FirstName = "System",
+                    LastName = "User",
+                    PasswordHash = hasher.HashPassword(null, "P@ssoword1")
+                }
+                
+                );
 
-                entity.Property(e => e.Isbn)
-                    .HasMaxLength(50)
-                    .HasColumnName("ISBN");
-
-                entity.Property(e => e.Price).HasColumnType("decimal(18, 2)");
-
-                entity.Property(e => e.Summary).HasMaxLength(250);
-
-                entity.Property(e => e.Title).HasColumnType("numeric(18, 0)");
-
-                entity.HasOne(d => d.Author)
-                    .WithMany(p => p.Books)
-                    .HasForeignKey(d => d.AuthorId)
-                    .HasConstraintName("FK_Books_ToTable");
-            });
-
-            OnModelCreatingPartial(modelBuilder);
+                builder.Entity<IdentityUserRole<string>>().HasData(
+                new IdentityUserRole<string>
+                {
+                    RoleId = "2a03e792-b707-4689-aea5-f83fde6dd875",
+                    UserId = "df2fe041-5f27-4a6c-869b-75092cc0d08d"
+                },
+                 new IdentityUserRole<string>
+                 {
+                     RoleId = "e301b28a-320e-4c7b-9e4e-20689a685afd",
+                     UserId = "9accb19b-c635-4c63-86ee-3a3ac9de7343"
+                 }
+                );
         }
 
         partial void OnModelCreatingPartial(ModelBuilder modelBuilder);
